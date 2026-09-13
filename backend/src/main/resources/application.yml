@@ -1,0 +1,55 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: quantlab-backend
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:quantlab}
+    username: ${DB_USERNAME:quantlab}
+    password: ${DB_PASSWORD:quantlab}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+quantlab:
+  version: 0.1.0
+  quant-service:
+    base-url: ${QUANT_SERVICE_URL:http://localhost:8000}
+  market-data:
+    provider: ${MARKET_DATA_PROVIDER:MOCK}
+    api-key: ${MARKET_DATA_API_KEY:${NSE_API_KEY:}}
+    api-secret: ${MARKET_DATA_API_SECRET:${NSE_API_SECRET:}}
+    base-url: ${MARKET_DATA_BASE_URL:${NSE_API_URL:https://api.nseindia.com}}
+    stale-threshold-seconds: ${MARKET_DATA_STALE_THRESHOLD_SECONDS:900}
+    future-tolerance-seconds: ${MARKET_DATA_FUTURE_TOLERANCE_SECONDS:60}
+    nse:
+      base-url: ${NSE_API_URL:${MARKET_DATA_BASE_URL:https://api.nseindia.com}}
+      api-key: ${NSE_API_KEY:${MARKET_DATA_API_KEY:}}
+      api-secret: ${NSE_API_SECRET:${MARKET_DATA_API_SECRET:}}
+      rate-limit-per-minute: ${NSE_RATE_LIMIT_PER_MINUTE:60}
+      connect-timeout-ms: 5000
+      read-timeout-ms: 10000
+      max-retries: 3
+      backoff-initial-ms: 500
+      backoff-multiplier: 2.0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized

@@ -1,0 +1,15 @@
+package com.quantlab.marketdata.model;
+
+public enum ErrorCategory {
+    PROVIDER_UNAVAILABLE,
+    AUTHENTICATION_FAILURE,
+    RATE_LIMITED,
+    MALFORMED_RESPONSE,
+    VALIDATION_FAILURE,
+    DUPLICATE_RECORD,
+    MISSING_DATA,
+    STALE_DATA,
+    DATABASE_FAILURE,
+    CONFIGURATION_ERROR,
+    UNKNOWN
+}

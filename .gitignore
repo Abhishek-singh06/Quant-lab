@@ -1,0 +1,57 @@
+# =========================================
+# QuantLab .gitignore
+# =========================================
+
+# --- Environment ---
+.env
+.env.local
+.env.*.local
+
+# --- Node / Frontend ---
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# --- Java / Backend ---
+backend/build/
+backend/.gradle/
+backend/bin/
+backend/out/
+backend/*.class
+
+# --- Python / Quant Service ---
+quant-service/.venv/
+quant-service/venv/
+quant-service/__pycache__/
+quant-service/**/__pycache__/
+quant-service/*.pyc
+quant-service/.pytest_cache/
+quant-service/.mypy_cache/
+quant-service/*.egg-info/
+
+# --- IDE ---
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# --- Docker ---
+docker-compose.override.yml
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Environment / Secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Quant-Lab Runtime / Generated Artifacts ---
+quant-service/data/paper_trading/
+quant-service/artifacts/
+quant-service/phase*_results.json
+quant-service/phase*_report.json

@@ -1,0 +1,44 @@
+package com.quantlab.paper.model;
+
+import java.time.Instant;
+import java.util.Map;
+import java.util.UUID;
+
+public record PaperTradingDecisionDTO(
+        UUID id,
+        UUID portfolioId,
+        UUID sessionId,
+        String symbol,
+        Instant timestamp,
+        String horizon,
+        String decision,
+        String decisionReason,
+        UUID signalId,
+        String signalVersion,
+        Double signalScore,
+        Double signalConfidence,
+        Double expectedReturn,
+        Double expectedVolatility,
+        String predictedDirection,
+        Double predictedProbability,
+        UUID predictionId,
+        String modelVersion,
+        UUID riskAssessmentId,
+        String riskEngineVersion,
+        Double suggestedAllocation,
+        Double maximumAllocation,
+        Integer recommendedQuantity,
+        Double entryPrice,
+        Double stopPrice,
+        Double targetPrice,
+        String riskLevel,
+        String supportingEvidence,
+        String opposingEvidence,
+        String dataQualityStatus,
+        String dataVersion,
+        String featureVersion,
+        Instant informationAvailableAt,
+        Instant calculatedAt,
+        String status,
+        Instant createdAt
+) {}
