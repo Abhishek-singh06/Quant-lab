@@ -1,11 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Building2, TrendingUp, TrendingDown, Layers, BarChart3, ShieldAlert, Cpu, FileText, Search } from 'lucide-react';
+import {
+  TrendingUp,
+  TrendingDown,
+  Search,
+} from 'lucide-react';
 import { api } from '@/lib/api';
 import { TechnicalFeaturesCard } from '@/components/dashboard/TechnicalFeaturesCard';
 import { CompanyFundamentalsCard } from '@/components/dashboard/CompanyFundamentalsCard';
 import { SignalTerminalCard } from '@/components/dashboard/SignalTerminalCard';
 import { RiskTerminalCard } from '@/components/dashboard/RiskTerminalCard';
 import { NewsTimelinePanel } from '@/components/terminal/NewsTimelinePanel';
+import { QLBadge } from '@/design-system/QLBadge';
+import { QLPanel } from '@/design-system/QLPanel';
+import { QLTabs } from '@/design-system/QLTabs';
 
 interface StockResearchWorkspaceProps {
   symbol: string;
@@ -24,6 +31,7 @@ export function StockResearchWorkspace({ symbol, onOpenSearch }: StockResearchWo
     volume?: number;
     source?: string;
     timestamp?: string;
+    lastPrice?: number;
   } | null>(null);
 
   useEffect(() => {
@@ -32,91 +40,83 @@ export function StockResearchWorkspace({ symbol, onOpenSearch }: StockResearchWo
       .catch(() => setQuote(null));
   }, [symbol]);
 
-  const lastPrice = quote?.close ?? 2450.0;
-  const openPrice = quote?.open ?? 2440.0;
-  const change = lastPrice - openPrice;
-  const changePct = openPrice !== 0 ? (change / openPrice) * 100 : 0;
+  const lastPrice = quote?.close ?? quote?.lastPrice ?? 0;
+  const openPrice = quote?.open ?? 0;
+  const change = lastPrice > 0 && openPrice > 0 ? lastPrice - openPrice : 0;
+  const changePct = openPrice > 0 ? (change / openPrice) * 100 : 0;
   const isPos = change >= 0;
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-5 space-y-5">
+    <QLPanel variant="surface" padding="md" className="space-y-6">
       {/* Workspace Header & Action Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/60 pb-4">
         <div className="flex items-center gap-3">
-          <div className="h-11 w-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent font-bold text-sm">
+          <div className="w-10 h-10 rounded-lg bg-surface-elevated border border-border flex items-center justify-center text-accent font-bold font-mono text-sm">
             {symbol.substring(0, 3)}
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-extrabold text-text-primary tracking-wide">{symbol}</h2>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-surface-elevated border border-border text-text-secondary">
+              <h2 className="text-xl font-bold text-text-primary tracking-wide font-mono">{symbol}</h2>
+              <QLBadge variant="neutral" size="xs">
                 NSE:EQ
-              </span>
+              </QLBadge>
               <button
                 onClick={onOpenSearch}
-                className="text-text-muted hover:text-accent p-1 transition-colors"
+                className="text-text-muted hover:text-accent p-1 transition-colors cursor-pointer"
                 title="Search another instrument"
               >
-                <Search className="h-4 w-4" />
+                <Search className="w-3.5 h-3.5" />
               </button>
             </div>
             <p className="text-xs text-text-muted mt-0.5">
-              Point-in-Time Indian Equity Analytics Desk · As of {quote?.timestamp ? new Date(quote.timestamp).toLocaleTimeString('en-IN') : 'Live Market'}
+              Point-in-Time Equity Desk · {quote?.timestamp ? `As of ${new Date(quote.timestamp).toLocaleTimeString('en-IN')} IST` : 'Yahoo Finance Delayed (~15m)'}
             </p>
           </div>
         </div>
 
         {/* Real-time Quote Card */}
-        <div className="flex items-center gap-4 bg-surface-elevated/60 border border-border/60 rounded-xl px-4 py-2 self-start sm:self-auto">
-          <div>
-            <span className="text-[10px] text-text-muted uppercase tracking-wider block">LTP (INR)</span>
-            <span className="text-lg font-bold text-text-primary">
-              ₹{lastPrice.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-            </span>
+        {lastPrice > 0 ? (
+          <div className="flex items-center gap-4 bg-surface-elevated/60 border border-border/60 rounded-lg px-4 py-2 self-start sm:self-auto font-mono">
+            <div>
+              <span className="text-[10px] text-text-muted uppercase block">LTP (INR)</span>
+              <span className="text-lg font-bold text-text-primary">
+                ₹{lastPrice.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              </span>
+            </div>
+            <div className="text-right">
+              <span className="text-[10px] text-text-muted uppercase block">1D Change</span>
+              <span className={`inline-flex items-center text-xs font-bold ${isPos ? 'text-emerald-400' : 'text-rose-400'}`}>
+                {isPos ? <TrendingUp className="w-3.5 h-3.5 mr-0.5" /> : <TrendingDown className="w-3.5 h-3.5 mr-0.5" />}
+                {isPos ? '+' : ''}{change.toFixed(2)} ({isPos ? '+' : ''}{changePct.toFixed(2)}%)
+              </span>
+            </div>
           </div>
-          <div className="text-right">
-            <span className="text-[10px] text-text-muted uppercase tracking-wider block">1D Change</span>
-            <span className={`inline-flex items-center text-sm font-bold ${isPos ? 'text-green-400' : 'text-red-400'}`}>
-              {isPos ? <TrendingUp className="h-3.5 w-3.5 mr-0.5" /> : <TrendingDown className="h-3.5 w-3.5 mr-0.5" />}
-              {isPos ? '+' : ''}{change.toFixed(2)} ({isPos ? '+' : ''}{changePct.toFixed(2)}%)
-            </span>
+        ) : (
+          <div className="text-xs font-mono text-text-muted p-2 rounded bg-surface-elevated">
+            Awaiting tick observation
           </div>
-        </div>
+        )}
       </div>
 
       {/* Desk Navigation Tabs */}
-      <div className="flex gap-1.5 overflow-x-auto border-b border-border pb-1">
-        {[
-          { id: 'overview', label: 'Terminal Overview', icon: Layers },
-          { id: 'technicals', label: 'Technical Indicators', icon: BarChart3 },
-          { id: 'fundamentals', label: 'Fundamentals & Ratios', icon: Building2 },
-          { id: 'signals', label: 'Quant Signals & Horizon', icon: Cpu },
-          { id: 'timeline', label: 'Corporate Filings & Events', icon: FileText },
-          { id: 'risk', label: 'Risk & Tail Exposures', icon: ShieldAlert },
-        ].map((t) => {
-          const Icon = t.icon;
-          const isSelected = tab === t.id;
-          return (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id as DeskTab)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
-                isSelected
-                  ? 'bg-accent-muted text-accent border border-accent/30'
-                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-elevated'
-              }`}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              <span>{t.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      <QLTabs<DeskTab>
+        activeTab={tab}
+        onChange={(newTab) => setTab(newTab)}
+        variant="underline"
+        tabs={[
+          { id: 'overview', label: 'Terminal Overview' },
+          { id: 'technicals', label: 'Technical Indicators' },
+          { id: 'fundamentals', label: 'Fundamentals & Ratios' },
+          { id: 'signals', label: 'Quant Signals & Horizon' },
+          { id: 'timeline', label: 'Corporate News & Filings' },
+          { id: 'risk', label: 'Risk & Tail Exposures' },
+        ]}
+      />
 
       {/* Desk Content */}
-      <div className="min-h-[420px]">
+      <div className="min-h-[400px]">
         {tab === 'overview' && (
-          <div className="grid gap-5 lg:grid-cols-2">
+          <div className="grid gap-6 lg:grid-cols-2">
             <SignalTerminalCard />
             <NewsTimelinePanel symbol={symbol} />
           </div>
@@ -128,6 +128,6 @@ export function StockResearchWorkspace({ symbol, onOpenSearch }: StockResearchWo
         {tab === 'timeline' && <NewsTimelinePanel symbol={symbol} />}
         {tab === 'risk' && <RiskTerminalCard />}
       </div>
-    </div>
+    </QLPanel>
   );
 }
